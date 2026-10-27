@@ -76,22 +76,16 @@ const meta = [
 		</div>
 
 		<div class="columns">
-			<section id="ingredients" class="ingredients" role="tabpanel" aria-labelledby="tab-ingredients" data-recipe={recipe.id}>
-				<div class="ingredients-head">
-					<h2>Ingredients</h2>
-					<span id="progress-label">0 of {ingredients.length}</span>
-				</div>
-				<div class="progress" aria-hidden="true"><div id="progress-bar"></div></div>
+			<section id="ingredients" class="ingredients" role="tabpanel" aria-labelledby="tab-ingredients">
+				<h2>Ingredients</h2>
 				<ul>
 					{
 						ingredients.map((item) => (
 							<li>
-								<label>
-									<input type="checkbox" />
-									<span>
-										{item.quantity && <strong set:html={inline(item.quantity)} />} <Fragment set:html={inline(item.name)} />
-									</span>
-								</label>
+								<span class="bullet" aria-hidden="true" />
+								<span>
+									{item.quantity && <strong set:html={inline(item.quantity)} />} <Fragment set:html={inline(item.name)} />
+								</span>
 							</li>
 						))
 					}
@@ -133,30 +127,6 @@ const meta = [
 </Layout>
 
 <script>
-	// Ingredient checklist, remembered per recipe so you can leave the page mid-cook.
-	const section = document.getElementById('ingredients')!;
-	const boxes = [...section.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
-	const label = document.getElementById('progress-label')!;
-	const bar = document.getElementById('progress-bar')!;
-	const key = `checked:${section.dataset.recipe}`;
-
-	let saved: number[] = [];
-	try {
-		saved = JSON.parse(localStorage.getItem(key) ?? '[]');
-	} catch {}
-	boxes.forEach((box, i) => (box.checked = saved.includes(i)));
-
-	function sync() {
-		const done = boxes.filter((b) => b.checked).length;
-		label.textContent = `${done} of ${boxes.length}`;
-		bar.style.width = boxes.length ? `${(done / boxes.length) * 100}%` : '0';
-		try {
-			localStorage.setItem(key, JSON.stringify(boxes.flatMap((b, i) => (b.checked ? [i] : []))));
-		} catch {}
-	}
-	boxes.forEach((box) => box.addEventListener('change', sync));
-	sync();
-
 	// Ingredients / Method tabs (only visible on narrow screens).
 	const columns = document.querySelector<HTMLElement>('.columns')!;
 	const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
@@ -295,35 +265,10 @@ const meta = [
 		border-radius: 24px;
 	}
 
-	.ingredients-head {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-	}
-
 	h2 {
 		font-weight: 700;
 		font-size: 28px;
 		letter-spacing: -0.03em;
-	}
-
-	.ingredients-head span {
-		font-size: 14px;
-		color: var(--muted);
-	}
-
-	.progress {
-		height: 6px;
-		border-radius: 999px;
-		background: var(--line);
-		overflow: hidden;
-	}
-
-	#progress-bar {
-		width: 0;
-		height: 100%;
-		background: var(--accent);
-		transition: width 0.2s ease;
 	}
 
 	.ingredients ul {
@@ -333,6 +278,11 @@ const meta = [
 	}
 
 	.ingredients li {
+		display: flex;
+		gap: 14px;
+		align-items: center;
+		min-height: 48px;
+		padding: 6px 0;
 		border-bottom: 1px dashed var(--line);
 	}
 
@@ -340,27 +290,12 @@ const meta = [
 		border-bottom: 0;
 	}
 
-	.ingredients label {
-		display: flex;
-		gap: 12px;
-		align-items: center;
-		min-height: 48px;
-		padding: 6px 0;
-		cursor: pointer;
-	}
-
-	.ingredients input {
+	.bullet {
 		flex: none;
-		width: 20px;
-		height: 20px;
-		margin: 0;
-		accent-color: var(--accent);
-		cursor: pointer;
-	}
-
-	.ingredients input:checked + span {
-		opacity: 0.55;
-		text-decoration: line-through;
+		width: 8px;
+		height: 8px;
+		border-radius: 999px;
+		background: var(--accent);
 	}
 
 	.ingredients strong {
@@ -543,6 +478,16 @@ const meta = [
 			font-size: 24px;
 		}
 
+		.ingredients li {
+			gap: 12px;
+			min-height: 46px;
+		}
+
+		.bullet {
+			width: 7px;
+			height: 7px;
+		}
+
 		.method {
 			gap: 10px;
 		}
@@ -566,12 +511,6 @@ const meta = [
 
 		.method li p {
 			padding-top: 4px;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		#progress-bar {
-			transition: none;
 		}
 	}
 </style>
