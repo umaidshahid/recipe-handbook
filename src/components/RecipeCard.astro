@@ -1,0 +1,125 @@
+---
+import { parseBody, tagLabel, totalTime, yieldLabel, colourFor, slugify, type Recipe } from '../lib/recipes';
+
+interface Props {
+	recipe: Recipe;
+	index: number;
+}
+
+const { recipe, index } = Astro.props;
+const { data } = recipe;
+const { tint, dot } = colourFor(index);
+const time = totalTime(data);
+const yields = yieldLabel(data);
+const number = String(index + 1).padStart(2, '0');
+const search = [data.title, data.description, ...data.tags, ...parseBody(recipe.body).ingredients.map((i) => i.name)]
+	.join(' ')
+	.toLowerCase();
+---
+
+<a href={`/recipes/${recipe.id}/`} class="card" data-tags={data.tags.map(slugify).join(' ')} data-search={search} style={`--tint: ${tint}`}>
+	<div class="card-art">
+		<span class="card-number">{number}</span>
+		<svg aria-hidden="true" width="84" height="84" viewBox="0 0 84 84"
+			><circle cx="42" cy="42" r="38" fill="var(--bg)"></circle><circle cx="42" cy="42" r="22" fill={dot}></circle></svg
+		>
+	</div>
+	<div class="card-body">
+		{data.tags.length > 0 && <span class="card-tags">{data.tags.map(tagLabel).join(' · ')}</span>}
+		<h3>{data.title}</h3>
+		<p>{data.description}</p>
+		<div class="card-meta">
+			{time && <span>{time}</span>}
+			{yields && <span>{yields}</span>}
+		</div>
+	</div>
+</a>
+
+<style>
+	.card {
+		display: flex;
+		flex-direction: column;
+		border-radius: 24px;
+		background: var(--surface);
+		border: 1px solid var(--line);
+		overflow: hidden;
+		transition: transform 0.15s ease;
+	}
+
+	.card:hover {
+		opacity: 1;
+		transform: translateY(-3px);
+	}
+
+	.card[hidden] {
+		display: none;
+	}
+
+	.card-art {
+		height: 140px;
+		background: var(--tint);
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		padding: 16px 20px;
+	}
+
+	.card-number {
+		font-family: var(--font-display);
+		font-weight: 800;
+		font-size: 64px;
+		line-height: 0.8;
+		letter-spacing: -0.05em;
+		opacity: 0.9;
+	}
+
+	.card-body {
+		padding: 20px 22px 22px;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		flex: 1;
+	}
+
+	.card-tags {
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--accent-text);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	h3 {
+		font-weight: 700;
+		font-size: 24px;
+		line-height: 1.15;
+		letter-spacing: -0.02em;
+	}
+
+	p {
+		color: var(--muted);
+		font-size: 15px;
+		flex: 1;
+	}
+
+	.card-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		font-size: 14px;
+		font-weight: 500;
+		padding-top: 6px;
+	}
+
+	.card-meta span {
+		padding: 4px 12px;
+		border-radius: 999px;
+		background: var(--bg);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.card {
+			transition: none;
+		}
+	}
+</style>

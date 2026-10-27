@@ -1,23 +1,208 @@
+---
+import '../styles/global.css';
+import { SITE } from '../site';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title, description = SITE.description } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.name}` : SITE.name;
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{pageTitle}</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap"
+		/>
+		<script is:inline>
+			// Runs before paint so the page never flashes the wrong theme.
+			(() => {
+				let stored = null;
+				try {
+					stored = localStorage.getItem('theme');
+				} catch {}
+				const system = matchMedia('(prefers-color-scheme: dark)');
+				const apply = () => {
+					document.documentElement.dataset.theme = stored ?? (system.matches ? 'dark' : 'light');
+				};
+				apply();
+				system.addEventListener('change', () => stored === null && apply());
+				window.__setTheme = (theme) => {
+					stored = theme;
+					try {
+						localStorage.setItem('theme', theme);
+					} catch {}
+					apply();
+				};
+			})();
+		</script>
 	</head>
 	<body>
-		<slot />
+		<header class="container site-header">
+			<a href="/" class="logo">
+				<span class="logo-mark">
+					<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1814" stroke-width="2.2" stroke-linecap="round"
+						><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg
+					>
+				</span>
+				{SITE.name}
+			</a>
+			<div class="header-actions">
+				<button type="button" class="icon-button" id="theme-toggle" aria-label="Switch colour theme">
+					<svg class="icon-sun" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						><circle cx="12" cy="12" r="4"></circle><path
+							d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg
+					>
+					<svg class="icon-moon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+						><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg
+					>
+				</button>
+			</div>
+		</header>
+
+		<main class="container site-main">
+			<slot />
+		</main>
+
+		<footer class="site-footer">
+			<div class="container footer-inner">
+				<slot name="footer" />
+			</div>
+		</footer>
+
+		<script>
+			const themeToggle = document.getElementById('theme-toggle')!;
+			const syncLabel = () => {
+				const dark = document.documentElement.dataset.theme === 'dark';
+				themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			};
+			syncLabel();
+			themeToggle.addEventListener('click', () => {
+				const dark = document.documentElement.dataset.theme === 'dark';
+				(window as any).__setTheme(dark ? 'light' : 'dark');
+				syncLabel();
+			});
+		</script>
 	</body>
 </html>
 
 <style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
+	.site-header {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		padding-top: 20px;
+		padding-bottom: 20px;
+	}
+
+	.logo {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-family: var(--font-display);
+		font-weight: 800;
+		font-size: 24px;
+		letter-spacing: -0.03em;
+	}
+
+	.logo-mark {
+		width: 32px;
+		height: 32px;
+		border-radius: 10px;
+		background: var(--accent);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transform: rotate(-8deg);
+	}
+
+	.header-actions {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.icon-button {
+		width: 44px;
+		height: 44px;
+		border-radius: 999px;
+		border: 1px solid var(--line);
+		background: var(--surface);
+		color: var(--ink);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+	}
+
+	.icon-sun {
+		display: none;
+	}
+
+	:global([data-theme='dark']) .icon-sun {
+		display: block;
+	}
+
+	:global([data-theme='dark']) .icon-moon {
+		display: none;
+	}
+
+	.site-main {
+		flex: 1;
+		padding-top: 16px;
+		padding-bottom: 96px;
+	}
+
+	.site-footer {
+		border-top: 1px solid var(--line);
+	}
+
+	.footer-inner {
+		padding-top: 32px;
+		padding-bottom: 32px;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 12px;
+		font-size: 14px;
+		color: var(--muted);
+	}
+
+	@media (max-width: 640px) {
+		.site-header {
+			padding-top: 10px;
+			padding-bottom: 10px;
+		}
+
+		.logo {
+			font-size: 21px;
+			gap: 8px;
+		}
+
+		.logo-mark {
+			width: 28px;
+			height: 28px;
+			border-radius: 9px;
+		}
+
+		.site-main {
+			padding-top: 4px;
+			padding-bottom: 48px;
+		}
 	}
 </style>

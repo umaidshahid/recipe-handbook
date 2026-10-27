@@ -1,0 +1,143 @@
+:root {
+	--bg: #f3eee4;
+	--surface: #fbf8f2;
+	--ink: #1c1814;
+	--muted: #655c52;
+	--line: #e2d9c8;
+	--accent: #f04e23;
+	--accent-text: #b8360f;
+	--on-accent: #1c1814;
+	--tint-tomato: #f9d3c3;
+	--tint-mustard: #f3de9a;
+	--tint-sage: #cfe0c3;
+	--tint-plum: #e2d3ec;
+	--tint-sky: #cfe0ee;
+	--tint-rose: #f2cfd8;
+
+	--font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+	--font-body: Inter, system-ui, sans-serif;
+	--page: 1160px;
+
+	color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+	--bg: #14110e;
+	--surface: #1e1a16;
+	--ink: #f3eee4;
+	--muted: #a89e92;
+	--line: #2e2822;
+	--accent: #ff6a3d;
+	--accent-text: #ff8a63;
+	--tint-tomato: #3d2219;
+	--tint-mustard: #3a3016;
+	--tint-sage: #22301d;
+	--tint-plum: #2e2338;
+	--tint-sky: #1c2b37;
+	--tint-rose: #3a1f27;
+
+	color-scheme: dark;
+}
+
+/* Without JavaScript, follow the system setting. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]) {
+		--bg: #14110e;
+		--surface: #1e1a16;
+		--ink: #f3eee4;
+		--muted: #a89e92;
+		--line: #2e2822;
+		--accent: #ff6a3d;
+		--accent-text: #ff8a63;
+		--tint-tomato: #3d2219;
+		--tint-mustard: #3a3016;
+		--tint-sage: #22301d;
+		--tint-plum: #2e2338;
+		--tint-sky: #1c2b37;
+		--tint-rose: #3a1f27;
+
+		color-scheme: dark;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: var(--bg);
+	color: var(--ink);
+	font-family: var(--font-body);
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+a:hover {
+	opacity: 0.85;
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+	font-family: var(--font-display);
+	margin: 0;
+}
+
+p {
+	margin: 0;
+}
+
+.container {
+	width: 100%;
+	max-width: var(--page);
+	margin: 0 auto;
+	padding-left: 24px;
+	padding-right: 24px;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+.pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 6px 14px;
+	border-radius: 999px;
+	background: var(--ink);
+	color: var(--bg);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+@media (max-width: 640px) {
+	.container {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+}
